@@ -1,22 +1,19 @@
 import requests
+from bs4 import BeautifulSoup
 
-# API URL
-api_url = "https://zenquotes.io/api/random/"
+url = 'https://www.dictionary.com/e/word-of-the-day/'
 
-def getapi(url):
+def get_word_of_the_day(url):
+
     response = requests.get(url)
-    data = response.json()
-    # print(data)
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-    if data:
-        quote = data[0].get('q')
-        author = data[0].get('a')
-    
-    # print(quote)
-    # print(author)
+    word = soup.find('div', class_ = 'otd-item-headword__word').text
 
-    return quote, author
+    definition_block = soup.find('div', class_ = 'otd-item-headword__pos')
+    # Extract definition and not word type
+    definition = definition_block.find_all('p')[1].text.strip()
 
-quote, author = getapi(api_url)
-print(quote)
-print(author)
+    return word, definition
+
+word, defintion = get_word_of_the_day(url)
