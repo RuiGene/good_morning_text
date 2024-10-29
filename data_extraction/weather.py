@@ -32,7 +32,6 @@ def get_weather_data(url, params):
         condition = data["current"]["condition"]["text"]
         icon_url = "https:" + data["current"]["condition"]["icon"]
 
-        forecast_date = data["forecast"]["forecastday"][0]["date"]
         hours_data = data["forecast"]["forecastday"][0]["hour"]
 
         start_time = datetime.strptime(f"{data['forecast']['forecastday'][0]['date']} 08:00", "%Y-%m-%d %H:%M")
