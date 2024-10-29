@@ -34,9 +34,11 @@ def get_weather_data(url, params):
 
         hours_data = data["forecast"]["forecastday"][0]["hour"]
 
+        # Forecast from 8:00am to 10:00pm
         start_time = datetime.strptime(f"{data['forecast']['forecastday'][0]['date']} 08:00", "%Y-%m-%d %H:%M")
         end_time = datetime.strptime(f"{data['forecast']['forecastday'][0]['date']} 22:00", "%Y-%m-%d %H:%M")
 
+        # Extracting relevant forecasted data
         forecast_12h = [
             {
                 "time": hour["time"],
@@ -52,13 +54,16 @@ def get_weather_data(url, params):
         temperatures = [entry["temp_c"] for entry in forecast_12h]
         precipitations = [entry["precip_mm"] for entry in forecast_12h]
 
+        # Initialising plot
         fig, ax1 = plt.subplots(figsize=(12, 6))
 
+        # Temperature line graph
         ax1.set_xlabel("Time")
         ax1.set_ylabel("Temperature (°C)", color='tab:orange')
         ax1.plot(times, temperatures, color = 'tab:orange', label = 'Temperature (°C)', marker = 'o')
         ax1.tick_params(axis = 'y', labelcolor = 'tab:orange')
 
+        # Rainfall bar chart
         ax2 = ax1.twinx()
         ax2.set_ylabel("Rainfall (mm)", color = 'tab:blue')
         ax2.bar(times, precipitations, color = 'tab:blue', alpha = 0.6, label = 'Rainfall (mm)', width = 0.1)
