@@ -18,5 +18,5 @@ def getapi(url):
     return quote, author
 
 quote, author = getapi(api_url)
-print(quote)
-print(author)
+# print(quote)
+# print(author)
