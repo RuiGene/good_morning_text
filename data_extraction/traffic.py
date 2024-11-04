@@ -32,11 +32,15 @@ home_address = os.getenv("home_address")
 url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
 
 origin = home_address
-destination = '-36.85581, 174.76637'
+destination = [
+    '-36.85581, 174.76637', # University Address
+    '-36.84801, 174.7578'
+]
+destination_str = '|'.join(destination)
 
 params = {
     'origins': origin,
-    'destinations': destination,
+    'destinations': destination_str,
     'departure_time': 'now',
     'mode': 'driving',
     'key': GOOGLE_KEY
@@ -44,7 +48,19 @@ params = {
 
 response = requests.get(url, params = params)
 
+results = []
+
 data = response.json()
 
-travel_time_seconds = data["rows"][0]["elements"][0]["duration_in_traffic"]["value"]
-travel_time_seconds
+for i, element in enumerate(data["rows"][0]["elements"]):
+    try:
+        travel_time = element["duration_in_traffic"]["text"]
+        
+        destination_info = {
+            'destination_name': data['destination_addresses'][i],
+            'time_taken': travel_time
+        }
+        results.append(destination_info)
+        
+    except KeyError:
+        print(f"Destination {i+1} - Error: Could not retrieve travel time with traffic.")
