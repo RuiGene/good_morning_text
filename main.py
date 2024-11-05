@@ -4,6 +4,7 @@ from dotenv import find_dotenv, load_dotenv
 from data_extraction.quote_of_the_day import getapi
 from data_extraction.word_of_the_day import get_word_of_the_day
 from data_extraction.weather import get_weather_data
+from data_extraction.traffic import get_traffic_data
 
 # Getting relevant information
 # Word of the day
@@ -18,7 +19,7 @@ quote, author = getapi(api_url)
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
 WEATHER_KEY = os.getenv("WEATHER_KEY")
-url = "http://api.weatherapi.com/v1/forecast.json"
+weather_url = "http://api.weatherapi.com/v1/forecast.json"
 params = {
     'key': WEATHER_KEY,
     'days': 1,
@@ -26,8 +27,27 @@ params = {
     'aqi': 'no',
     'alerts': 'no'
 }
-temp_c, wind_kph, humidity, feelslike_c, condition, icon_url, graph = get_weather_data(url, params)
+temp_c, wind_kph, humidity, feelslike_c, condition, icon_url, graph = get_weather_data(weather_url, params)
 
+# Traffic
+GOOGLE_KEY = os.getenv("GOOGLE_KEY")
+home_address = os.getenv("home_address")
+traffic_url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
+origin = home_address
+destination = [
+    '-36.85581, 174.76637', # University Address
+    '-36.84801, 174.7578' # Work Address
+]
+destination_str = '|'.join(destination)
+params = {
+    'origins': origin,
+    'destinations': destination_str,
+    'departure_time': 'now',
+    'mode': 'driving',
+    'key': GOOGLE_KEY
+}
+
+traffic = get_traffic_data(traffic_url, params)
 
 # Configuration
 port = 587
