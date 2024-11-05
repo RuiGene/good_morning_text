@@ -64,30 +64,32 @@ params = {
 }
 articles = get_news_articles(params)
 
-# Configuration
-port = 587
-smtp_server = "live.smtp.mailtrap.io"
-login = "api"
-sender = "testing@zr-yang.com"
-receiver = "zrdanielyang@gmail.com"
-dotenv_path = find_dotenv()
-load_dotenv(dotenv_path)
-API_KEY = os.getenv("API_KEY")
+# # Configuration
+# port = 587
+# smtp_server = "live.smtp.mailtrap.io"
+# login = "api"
+# sender = "testing@zr-yang.com"
+# receiver = "zrdanielyang@gmail.com"
+# dotenv_path = find_dotenv()
+# load_dotenv(dotenv_path)
+# API_KEY = os.getenv("API_KEY")
 
-message = f"""\
-Subject: Hi Mailtrap
-To: {receiver}
-From: {sender}
+# message = f"""\
+# Subject: Hi Mailtrap
+# To: {receiver}
+# From: {sender}
 
-Quote of the day: {quote} by {author}.
+# Quote of the day: {quote} by {author}.
 
-Word of the day: {word}. Definition: {definition}
+# Word of the day: {word}. Definition: {definition}
 
-"""
+# """
 
-with smtplib.SMTP(smtp_server, port) as server:
-    server.starttls()  # Secure the connection
-    server.login(login, API_KEY)
-    server.sendmail(sender, receiver, message)
+# with smtplib.SMTP(smtp_server, port) as server:
+#     server.starttls()  # Secure the connection
+#     server.login(login, API_KEY)
+#     server.sendmail(sender, receiver, message)
 
-print('Sent')
+# print('Sent')
+
+print(articles)

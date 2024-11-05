@@ -83,4 +83,4 @@ def get_weather_data(url, params):
         print("Error:", response.status_code, response.text)
         return None
 
-temp_c, wind_kph, humidity, feelslike_c, condition, icon_url, graph = get_weather_data(url, params)
+# temp_c, wind_kph, humidity, feelslike_c, condition, icon_url, graph = get_weather_data(url, params)

@@ -33,7 +33,3 @@ def get_news_articles(params):
     ]
     
     return articles
-
-articles = get_news_articles(params)
-
-print(articles)
