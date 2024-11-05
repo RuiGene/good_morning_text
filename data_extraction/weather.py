@@ -75,6 +75,8 @@ def get_weather_data(url, params):
         plt.title("12 Hour Temperature and Rainfall Forecast")
         fig.tight_layout()
 
+        plt.close(fig)
+
         return(temp_c, wind_kph, humidity, feelslike_c, condition, icon_url, fig)
         
     else:

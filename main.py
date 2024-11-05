@@ -5,6 +5,7 @@ from data_extraction.quote_of_the_day import getapi
 from data_extraction.word_of_the_day import get_word_of_the_day
 from data_extraction.weather import get_weather_data
 from data_extraction.traffic import get_traffic_data
+from data_extraction.news import get_news_articles
 
 # Getting relevant information
 # Word of the day
@@ -46,8 +47,22 @@ params = {
     'mode': 'driving',
     'key': GOOGLE_KEY
 }
-
 traffic = get_traffic_data(traffic_url, params)
+
+# News
+NEWS_KEY = os.getenv("NEWS_KEY")
+params = {
+  "api_key": NEWS_KEY,
+  "engine": "google",
+  "q": "news",
+  "location": "New Zealand",
+  "google_domain": "google.co.nz",
+  "gl": "nz",
+  "hl": "en",
+  "tbm": "nws",
+  "num": "5"
+}
+articles = get_news_articles(params)
 
 # Configuration
 port = 587
