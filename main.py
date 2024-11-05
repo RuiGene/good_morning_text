@@ -1,5 +1,11 @@
 import smtplib
 import os
+import base64
+from io import BytesIO
+import matplotlib.pyplot as plt
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime
 from dotenv import find_dotenv, load_dotenv
 from data_extraction.quote_of_the_day import getapi
 from data_extraction.word_of_the_day import get_word_of_the_day
@@ -64,32 +70,132 @@ params = {
 }
 articles = get_news_articles(params)
 
-# # Configuration
-# port = 587
-# smtp_server = "live.smtp.mailtrap.io"
-# login = "api"
-# sender = "testing@zr-yang.com"
-# receiver = "zrdanielyang@gmail.com"
-# dotenv_path = find_dotenv()
-# load_dotenv(dotenv_path)
-# API_KEY = os.getenv("API_KEY")
+# Configuring data into HTML format
+def get_base64_encoded_image(fig):
+    buffer = BytesIO()
+    fig.savefig(buffer, format="png")
+    buffer.seek(0)
+    img_str = base64.b64encode(buffer.read()).decode("utf-8")
+    plt.close(fig)
+    return img_str
+graph_base64 = get_base64_encoded_image(graph)
 
-# message = f"""\
-# Subject: Hi Mailtrap
-# To: {receiver}
-# From: {sender}
+traffic_list = ""
+for entry in traffic:
+    destination = entry['destination_name']
+    time_taken = entry['time_taken']
+    traffic_list += f"<li>{destination}: {time_taken}</li>"
 
-# Quote of the day: {quote} by {author}.
+def generate_news_html(articles):
+    news_items = ""
+    
+    for article in articles:
+        title = article['title']
+        link = article['link']
+        date = article['date']
+        
+        news_items += f'<li><a href="{link}" target="_blank">{title}</a> ({date}) </li>\n'
+        
+    return news_items
+news_html = generate_news_html(articles)
 
-# Word of the day: {word}. Definition: {definition}
+# HTML script
+html_message = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }}
+        .container {{
+            padding: 20px;
+        }}
+        h2 {{
+            color: #4CAF50;
+        }}
+        .quote, .word, .weather, .traffic, .news {{
+            padding: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dddddd;
+        }}
+        .news-article {{
+            margin-bottom: 10px;
+        }}
+        .weather-icon {{
+            vertical-align: middle;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Daily Update</h2>
+        
+        <div class="quote">
+            <h3>Quote of the Day</h3>
+            <p>"{quote}" - <em>{author}</em></p>
+        </div>
+        
+        <div class="word">
+            <h3>Word of the Day</h3>
+            <p><strong>{word}</strong>: {definition}</p>
+        </div>
+        
+        <div class="weather">
+            <h3>Weather in Auckland</h3>
+            <p><strong>Temperature:</strong> {temp_c}°C, feels like {feelslike_c}°C</p>
+            <p><strong>Condition:</strong> {condition}</p>
+            <img src="{icon_url}" alt="Weather Icon" class="weather-icon"/>
+            <p><strong>Humidity:</strong> {humidity}%</p>
+            <p><strong>Wind Speed:</strong> {wind_kph} km/h</p>
+            <img src="data:image/png;base64,{graph_base64}" alt="Weather Graph" style="width:600px; height:auto;>
+        </div>
+        
+        <div class="traffic">
+            <h3>Traffic Updates</h3>
+            <p>From home to:</p>
+            <ul>
+                {traffic_list}
+            </ul>
+        </div>
+        
+        <div class="news">
+            <h3>Top News in New Zealand</h3>
+            <ul>
+                {news_html}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+"""
 
-# """
+# Configuration
+port = 587
+smtp_server = "live.smtp.mailtrap.io"
+login = "api"
+sender = "testing@zr-yang.com"
+receiver = "zrdanielyang@gmail.com"
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
+API_KEY = os.getenv("API_KEY")
 
-# with smtplib.SMTP(smtp_server, port) as server:
-#     server.starttls()  # Secure the connection
-#     server.login(login, API_KEY)
-#     server.sendmail(sender, receiver, message)
+today_date = datetime.now().strftime("%B %d")
 
-# print('Sent')
+message = MIMEMultipart("alternative")
+message["Subject"] = f"{today_date} Summary"
+message["To"] = receiver
+message["From"] = sender
 
-print(articles)
+part = MIMEText(html_message, "html", "utf-8")
+message.attach(part)
+
+with smtplib.SMTP(smtp_server, port) as server:
+    server.starttls()  # Secure the connection
+    server.login(login, API_KEY)
+    server.sendmail(sender, receiver, message.as_string())
+
+print('Sent')
