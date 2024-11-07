@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from dotenv import find_dotenv, load_dotenv
+from email.message import EmailMessage
 
 def get_quote(quote_url):
     response = requests.get(quote_url)
@@ -140,7 +141,7 @@ def generate_news_html(articles):
         
     return news_items
 
-def email(smtp_server, port, login, sender, receiver, key, html_message):
+def email(smtp_server, port, sender, receiver, password, html_message):
     today_date = datetime.now().strftime("%B %d")
     message = MIMEMultipart("alternative")
     message["Subject"] = f"{today_date} Summary"
@@ -152,7 +153,7 @@ def email(smtp_server, port, login, sender, receiver, key, html_message):
 
     with smtplib.SMTP(smtp_server, port) as server:
         server.starttls()  # Secure the connection
-        server.login(login, key)
+        server.login(sender, password)
         server.sendmail(sender, receiver, message.as_string())
 
 def main():
@@ -290,17 +291,18 @@ def main():
     </html>
     """
 
-    key = os.getenv("API_KEY")
+    password = os.getenv("gmail_password")
 
     email(
-        smtp_server = "live.smtp.mailtrap.io",
+        smtp_server = 'smtp.gmail.com',
         port = 587,
-        login = 'api',
-        sender = 'testing@zr-yang.com',
+        sender = 'zrdanielyang@gmail.com',
         receiver = 'zrdanielyang@gmail.com',
-        key = key,
+        password = password,
         html_message = html_message
     )
+
+    print('Success')
 
 if __name__ == "__main__":
     main()
