@@ -141,6 +141,21 @@ def generate_news_html(articles):
         
     return news_items
 
+def get_word_of_the_day(WORD_KEY):
+    url = "https://api.wordnik.com/v4/words.json/wordOfTheDay"
+    headers = {
+        "api_key": WORD_KEY
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        word = data.get('word')
+        definition = data['definitions'][0]['text'] if data.get('definitions') else "No definition available"
+        return word, definition
+    else:
+        return None
+
 def email(smtp_server, port, sender, receiver, password, html_message):
     today_date = datetime.now().strftime("%B %d")
     message = MIMEMultipart("alternative")
@@ -218,6 +233,9 @@ def main():
 
     news_html = generate_news_html(articles)
 
+    WORD_KEY = os.getenv("WORD_KEY")
+    word, definition = get_word_of_the_day(WORD_KEY)
+
     # Message body
     html_message = f"""
     <!DOCTYPE html>
@@ -259,7 +277,8 @@ def main():
             </div>
             
             <div class="word">
-                <h3>Word of the Day</h3>
+                <h3>Word of the Day: {word}</h3>
+                <p class="definition"><strong>Definition:</strong> {definition}</p>
             </div>
             
             <div class="weather">
